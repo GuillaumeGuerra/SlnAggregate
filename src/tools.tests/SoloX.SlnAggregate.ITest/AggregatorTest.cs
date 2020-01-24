@@ -35,6 +35,22 @@ namespace SoloX.SlnAggregate.ITest
         }
 
         [Fact]
+        public void It_should_generate_the_aggregated_sln_file_and_the_shadow_projects_for_the_filtered_list_if_provided()
+        {
+            TestWithAggregator(aggregator =>
+            {
+                aggregator.Setup(@"Resources/RootSln1", new[] { "SlnLib1" });
+
+                aggregator.GenerateSolution();
+            });
+
+            Assert.True(File.Exists(@"Resources/RootSln1/RootSln1.sln"));
+            Assert.True(File.Exists(@"Resources/RootSln1/RootSln1.guid.cache"));
+            Assert.True(File.Exists(@"Resources/RootSln1/SlnLib1/Lib1/Lib1.Shadow.csproj"));
+            Assert.True(File.Exists(@"Resources/RootSln1/SlnLib2/Lib2/Lib2.Shadow.csproj"));
+        }
+
+        [Fact]
         public void It_should_detect_the_package_declarations()
         {
             TestWithAggregator(aggregator =>

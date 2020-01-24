@@ -7,6 +7,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,6 +22,7 @@ namespace SoloX.SlnAggregate
     {
         private const string CliArgPath = "path";
         private const string CliArgPush = "push";
+        private const string CliArgList = "folders";
 
         private static readonly IReadOnlyDictionary<string, (string key, string value)> ArgAliases
             = new Dictionary<string, (string, string)>()
@@ -76,6 +78,12 @@ namespace SoloX.SlnAggregate
 
             var push = this.configuration.GetValue<bool>(CliArgPush, false);
 
+            var folders = this.configuration
+                .GetValue<string>(CliArgList, string.Empty)
+                .Split(',', ';')
+                .Select(f => Path.Combine(path, f))
+                .ToArray();
+
             if (string.IsNullOrEmpty(path))
             {
                 this.logger.LogError($"Missing path parameter.");
@@ -84,7 +92,7 @@ namespace SoloX.SlnAggregate
 
             var aggregator = this.Service.GetService<IAggregator>();
 
-            aggregator.Setup(path);
+            aggregator.Setup(path, folders.Any() ? folders : null);
 
             if (push)
             {
